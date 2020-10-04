@@ -1,0 +1,14 @@
+# Java related
+target/**
+
+# eclipse specific
+.project
+.metadata
+*.tmp
+*.bak
+*.swp
+*~.nib
+.classpath
+.settings/
+.loadpath
+/target/
