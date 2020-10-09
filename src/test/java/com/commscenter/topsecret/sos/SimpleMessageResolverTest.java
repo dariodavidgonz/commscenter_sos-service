@@ -9,24 +9,28 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class SimpleMessageResolverTest  {
-	
-	
+import com.commscenter.topsecret.message.MessageNotResolvedException;
+import com.commscenter.topsecret.message.SimpleMessageResolver;
+
+class SimpleMessageResolverTest {
+
 	@Test
 	void testNullList() {
-		assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(null);
-	    });
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
+		assertThrows(MessageNotResolvedException.class, () -> {			
+			simpleMessageResolver.getMessage(null);
+		});
 	}
-	
+
 	@Test
 	void testNoElementsList() {
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
 		List<List<String>> aux = new ArrayList<>();
 		assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
+
 	@Test
 	void testSingleList() {
 		List<List<String>> aux = new ArrayList<>();
@@ -34,7 +38,7 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("solicito ayuda", message);
 	}
-	
+
 	@Test
 	void testSingleListWithEmptyWord() {
 		List<List<String>> aux = new ArrayList<>();
@@ -42,7 +46,7 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("solicito ayuda", message);
 	}
-	
+
 	@Test
 	void testSingleListWithTwoSpaces() {
 		List<List<String>> aux = new ArrayList<>();
@@ -50,7 +54,7 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("solicito    ayuda", message);
 	}
-	
+
 	@Test
 	void testSingleListWithExtraBlank() {
 		List<List<String>> aux = new ArrayList<>();
@@ -58,7 +62,7 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("ayuda", message);
 	}
-	
+
 	@Test
 	void testMerge2CompatibleLists() {
 		List<List<String>> aux = new ArrayList<>();
@@ -67,17 +71,18 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje", message);
 	}
-	
+
 	@Test
 	void testMerge2IncompatibleLists() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje", "")));
 		aux.add(new ArrayList<>(Arrays.asList("es", "un", "mensaje", "", "")));
-		 assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
+
 	@Test
 	void testMerge2CompatibleListWithNullIgnoredAsEmpty() {
 		List<List<String>> aux = new ArrayList<>();
@@ -86,7 +91,7 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("solicito ayuda", message);
 	}
-	
+
 	@Test
 	void testMerge3CompatibleLists() {
 		List<List<String>> aux = new ArrayList<>();
@@ -96,7 +101,6 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje secreto", message);
 	}
-	
 
 	@Test
 	void testMerge3CompatibleListWithFirstListExtraBlank() {
@@ -104,10 +108,10 @@ public class SimpleMessageResolverTest  {
 		aux.add(new ArrayList<>(Arrays.asList("", "este", "es", "un", "mensaje")));
 		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "mensaje")));
 		aux.add(new ArrayList<>(Arrays.asList("", "", "es", "", "mensaje")));
-		String message =new SimpleMessageResolver().getMessage(aux);
+		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje", message);
 	}
-	
+
 	@Test
 	void testMerge3CompatibleListWithSecondListExtraBlank() {
 		List<List<String>> aux = new ArrayList<>();
@@ -117,83 +121,84 @@ public class SimpleMessageResolverTest  {
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje", message);
 	}
-	
+
 	@Test
 	void testMerge3CompatibleListWithFirstAndSecondExtraBlank() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("", "ayuda", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "", "" , "",  "favor")));
+		aux.add(new ArrayList<>(Arrays.asList("", "", "", "", "", "favor")));
 		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("ayuda por favor", message);
 	}
-	
+
 	@Test
 	void testMerge3ListIncompatibleSecondWord() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("", "ayuda", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "", "" , "",  "favor", "")));
+		aux.add(new ArrayList<>(Arrays.asList("", "", "", "", "", "favor", "")));
 		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
-		 assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
+
 	@Test
 	void testMerge3ListIncompatibleFirstWord() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("ayuda", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("favor", "")));
 		aux.add(new ArrayList<>(Arrays.asList("por", "")));
-		 assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
+
 	@Test
 	void testMerge3IncompatibleListWithNullEqualsNoElementInPlace() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("ayuda", null, "")));
 		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
 		aux.add(new ArrayList<>(Arrays.asList("ayuda", "favor")));
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
 		assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
+
 	@Test
 	void testMerge4CompatibleList() {
 		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "","")));
+		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("este", "es", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("", "", "un", "")));
 		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje")));
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje", message);
 	}
-	
+
 	@Test
 	void testMerge4CompatibleListWithOneBlank() {
 		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "","")));
+		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("este", "es", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("", "", "", "")));
 		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "mensaje")));
 		String message = new SimpleMessageResolver().getMessage(aux);
 		assertEquals("este es un mensaje", message);
 	}
-	
-	
+
 	@Test
 	void testIncorrectListSizes() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("este", "es")));
 		aux.add(new ArrayList<>(Arrays.asList("", "este", "", "uno")));
+		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
 		assertThrows(MessageNotResolvedException.class, () -> {
-			 new SimpleMessageResolver().getMessage(aux);
-	    });
+			simpleMessageResolver.getMessage(aux);
+		});
 	}
-	
 
-	
 }

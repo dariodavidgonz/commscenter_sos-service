@@ -1,4 +1,4 @@
-package com.commscenter.topsecret.sos;
+package com.commscenter.topsecret.message;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class SimpleMessageResolver implements MessageResolver {
 
 	public String getMessage(List<List<String>> wordLists) {
@@ -37,10 +40,10 @@ public class SimpleMessageResolver implements MessageResolver {
 		int listSize = list.size();
 		for (int index = 0; index < listSize - messageSize && i.hasNext(); index++) {
 			String e = i.next();
-		    if ("".equals(e)) {
-		        i.remove();
-		    }
-			
+			if ("".equals(e)) {
+				i.remove();
+			}
+
 		}
 	}
 

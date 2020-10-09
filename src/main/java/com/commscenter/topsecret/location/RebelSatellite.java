@@ -2,27 +2,19 @@ package com.commscenter.topsecret.location;
 
 public class RebelSatellite implements Satellite {
 
-	private SecretPoint position;
+	private SecretPoint location;
 	private String name;
 	private Integer id;
 
-	public RebelSatellite(Integer id, String name, SecretPoint position) {
+	public RebelSatellite(Integer id, String name, SecretPoint location) {
 		super();
-		this.position = position;
+		this.setLocation(location);
 		this.name = name;
 		this.id = id;
 	}
 
 	public RebelSatellite() {
 		super();
-	}
-
-	public SecretPoint getPosition() {
-		return position;
-	}
-
-	public void setPosition(SecretPoint position) {
-		this.position = position;
 	}
 
 	public String getName() {
@@ -39,6 +31,14 @@ public class RebelSatellite implements Satellite {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public SecretPoint getLocation() {
+		return location;
+	}
+
+	public void setLocation(SecretPoint location) {
+		this.location = location;
 	}
 
 }

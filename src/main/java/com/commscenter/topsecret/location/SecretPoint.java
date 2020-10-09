@@ -30,5 +30,9 @@ public class SecretPoint {
 	public void setY(Double y) {
 		this.y = y;
 	}
+	
+	public Double calculateDistanceTo(SecretPoint b) {
+		return Math.sqrt((b.getY() - this.getY()) * (b.getY() - this.getY()) + (b.getX() - this.getX()) * (b.getX() - this.getX()));
+	}
 
 }

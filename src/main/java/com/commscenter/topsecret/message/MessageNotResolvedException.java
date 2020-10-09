@@ -1,4 +1,4 @@
-package com.commscenter.topsecret.sos;
+package com.commscenter.topsecret.message;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

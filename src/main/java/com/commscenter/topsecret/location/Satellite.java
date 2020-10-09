@@ -2,7 +2,7 @@ package com.commscenter.topsecret.location;
 
 public interface Satellite {
 
-	public SecretPoint getPosition();
+	public SecretPoint getLocation();
 
 	public String getName();
 

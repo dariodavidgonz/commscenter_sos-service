@@ -7,7 +7,7 @@ import org.springframework.messaging.Message;
 
 import com.commscenter.topsecret.location.SecretPoint;
 
-public class FunctionTests {
+class FunctionTests {
 
 	private final FunctionConfiguration functions = new FunctionConfiguration();
 

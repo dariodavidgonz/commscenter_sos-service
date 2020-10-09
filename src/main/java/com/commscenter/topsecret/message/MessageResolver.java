@@ -1,4 +1,4 @@
-package com.commscenter.topsecret.sos;
+package com.commscenter.topsecret.message;
 
 import java.util.List;
 
