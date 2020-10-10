@@ -44,7 +44,7 @@ class SimpleMessageResolverTest {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("solicito", "", "ayuda")));
 		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("solicito ayuda", message);
+		assertEquals("solicito  ayuda", message);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class SimpleMessageResolverTest {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("", "ayuda")));
 		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("ayuda", message);
+		assertEquals(" ayuda", message);
 	}
 
 	@Test
@@ -69,7 +69,7 @@ class SimpleMessageResolverTest {
 		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje", "")));
 		aux.add(new ArrayList<>(Arrays.asList("", "es", "un", "", "")));
 		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje", message);
+		assertEquals("este es un mensaje ", message);
 	}
 
 	@Test
@@ -84,12 +84,12 @@ class SimpleMessageResolverTest {
 	}
 
 	@Test
-	void testMerge2CompatibleListWithNullIgnoredAsEmpty() {
+	void testMerge2CompatibleListWithNullAsEmpty() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("solicito", null, "")));
 		aux.add(new ArrayList<>(Arrays.asList("", null, "ayuda")));
 		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("solicito ayuda", message);
+		assertEquals("solicito  ayuda", message);
 	}
 
 	@Test
