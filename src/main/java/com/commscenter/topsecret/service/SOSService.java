@@ -6,7 +6,7 @@ import com.commscenter.topsecret.location.SecretPoint;
 
 public interface SOSService {
 	
-	public SecretPoint getLocation(List<Double> ratios);
+	public SecretPoint getLocation(List<Double> distances);
 	public String getMessage(List<List<String>> messages);
 
 }
