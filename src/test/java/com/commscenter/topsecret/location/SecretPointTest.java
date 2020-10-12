@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.commscenter.topsecret.location.coordinate.SecretPoint;
+
 class SecretPointTest {
 
 	@Test

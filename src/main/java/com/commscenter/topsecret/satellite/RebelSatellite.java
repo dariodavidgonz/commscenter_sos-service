@@ -1,5 +1,12 @@
-package com.commscenter.topsecret.location;
+package com.commscenter.topsecret.satellite;
 
+import com.commscenter.topsecret.location.coordinate.SecretPoint;
+
+/**
+ * The Satellite implementation of a Rebel Satellite
+ * 
+ * @author Dario Gonzalez
+ */
 public class RebelSatellite implements Satellite {
 
 	private SecretPoint location;

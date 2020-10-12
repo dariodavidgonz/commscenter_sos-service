@@ -2,47 +2,95 @@ package com.commscenter.topsecret.message;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * Message Resolver implementating an algorithm for merging information from
+ * different sources messages in order to resolve its meaning
+ * 
+ * @author Dario Gonzalez
+ * 
+ */
 @Component
 public class SimpleMessageResolver implements MessageResolver {
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * This method used the input messages and merge its information. Messages can
+	 * have an offset filed with empty String elements. The function removes the
+	 * offset of the input lists.
+	 * 
+	 */
 	public String getMessage(List<List<String>> wordLists) {
 		validate(wordLists);
-		int minMessageSize = getMinMessageSize(wordLists);
-		wordLists.stream().forEach(list -> removeExtraBlanksFromList(minMessageSize, list));
-		validateListsSize(wordLists, minMessageSize);
-		List<String> mergedWordList = resolveMessages(wordLists, minMessageSize);
+		int realMessageSize = getMinMessageSize(wordLists);
+		List<List<String>> cleanLists = wordLists.stream()
+				.map(list -> removeExtraEmptyElementsFromList(realMessageSize, list)).collect(Collectors.toList());
+		validateListsSize(cleanLists, realMessageSize);
+		List<String> mergedWordList = resolveMessages(cleanLists, realMessageSize);
 		return convertToMessageString(mergedWordList);
 	}
 
-	private void removeExtraBlanksFromList(int messageSize, List<String> list) {
-		Iterator<String> i = list.iterator();
-		int listSize = list.size();
-		for (int index = 0; index < listSize - messageSize && i.hasNext(); index++) {
-			String e = i.next();
-			if (e.isEmpty()) {
-				i.remove();
-			}
+	/**
+	 * Removes extra empty elements from a list to make it match a required size.
+	 *
+	 * @param requiredSize exact size that the list is required to have
+	 * @param list         
+	 * 
+	 * @return new list without extra empty elements
+	 * 
+	 */
+	private List<String> removeExtraEmptyElementsFromList(int requiredSize, List<String> list) {
+		boolean elementsToDeleteAllEmpty = list.stream().limit((long) list.size() - requiredSize)
+				.allMatch(element -> element.isEmpty());
+		if (!elementsToDeleteAllEmpty) {
+			throw new MessageNotResolvedException();
 		}
+		return list.stream().skip((long) list.size() - requiredSize).collect(Collectors.toList());
+
 	}
 
-	private List<String> resolveMessages(List<List<String>> wordLists, int messageSize) {
-		List<String> outputList = createListOfEmpties(messageSize);
+	/**
+	 * This method merges all lists in wordLists to a new List with a required size
+	 * 
+	 * @param wordLists         lists that will be merged
+	 * @param outputMessageSize required output size
+	 * 
+	 */
+	private List<String> resolveMessages(List<List<String>> wordLists, int outputMessageSize) {
+		List<String> outputList = createListOfEmpties(outputMessageSize);
 		wordLists.stream().forEach(list -> mergeLists(outputList, list));
 		return outputList;
 	}
 
+	/**
+	 * This method merges elements from two lists with invalid elements Invalid
+	 * elements are the ones which are an empty String "". This method modifies the
+	 * first parameter (outputList).
+	 * 
+	 * @param outputList list to be modified
+	 * @param list       list with possible values
+	 * 
+	 */
 	private void mergeLists(List<String> outputList, List<String> list) {
 		for (int wordIndex = 0; wordIndex < list.size(); wordIndex++) {
 			mergeWord(list, outputList, wordIndex);
 		}
 	}
 
+	/**
+	 * This method replaces the content present at an specific index in the output
+	 * list with the information present in the source list at the same index
+	 * 
+	 * @param sourceWordList list with the information to be merged
+	 * @param targetWordList output list in which the information will be merged
+	 * @param wordIndex      position in both lists of the element being merged
+	 * 
+	 */
 	private void mergeWord(List<String> sourceWordList, List<String> targetWordList, int wordIndex) {
 		if (canReplace(sourceWordList, targetWordList, wordIndex)) {
 			if (isEmptyAtIndex(targetWordList, wordIndex)) {
@@ -51,7 +99,21 @@ public class SimpleMessageResolver implements MessageResolver {
 				throw new MessageNotResolvedException();
 			}
 		}
+	}
 
+	/**
+	 * Validates that the list of words can be processed
+	 * 
+	 * @param wordLists list to validate
+	 * 
+	 * @throws MessageNotResolvedException in case the lists are not valid to
+	 *                                     process
+	 * 
+	 */
+	private void validate(List<List<String>> wordLists) {
+		if (wordLists == null || !wordLists.stream().allMatch(list -> !list.isEmpty())) {
+			throw new MessageNotResolvedException();
+		}
 	}
 
 	private boolean isEmptyAtIndex(List<String> targetWordList, int wordIndex) {
@@ -70,12 +132,11 @@ public class SimpleMessageResolver implements MessageResolver {
 		return aux;
 	}
 
-	private void validateListsSize(List<List<String>> wordLists, int msgSize) {
+	private void validateListsSize(List<List<String>> wordLists, int expectedSize) {
 		for (List<String> list : wordLists) {
-			if (list.size() > msgSize)
+			if (list.size() != expectedSize)
 				throw new MessageNotResolvedException();
 		}
-
 	}
 
 	private int getMinMessageSize(List<List<String>> wordLists) {
@@ -84,16 +145,8 @@ public class SimpleMessageResolver implements MessageResolver {
 		return minList.size();
 	}
 
-	private void validate(List<List<String>> wordLists) {
-		if (wordLists == null) {
-			throw new MessageNotResolvedException();
-		}
-	}
-	
 	private String convertToMessageString(List<String> list) {
-		return list.stream().
-			       map(Object::toString).
-			       collect(Collectors.joining(" "));
+		return list.stream().map(Object::toString).filter(s -> !s.isEmpty()).collect(Collectors.joining(" "));
 	}
 
 }

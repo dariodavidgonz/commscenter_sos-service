@@ -5,14 +5,20 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.commscenter.topsecret.location.RebelSatellite;
-import com.commscenter.topsecret.location.Satellite;
-import com.commscenter.topsecret.location.SecretPoint;
+import com.commscenter.topsecret.location.coordinate.SecretPoint;
+import com.commscenter.topsecret.satellite.RebelSatellite;
+import com.commscenter.topsecret.satellite.Satellite;
 
+/**
+ * 
+ * In memory implementation of the Satellite DAO
+ * 
+ * @author Dario Gonzalez
+ */
 @Component
-public class InMemorySatelliteService implements SatelliteService {
+public class SatelliteInMemoryDAO implements SatelliteDAO {
 
-	public List<Satellite> getSatellites() {
+	public List<Satellite> findAll() {
 		List<Satellite> satellites = new ArrayList<>();
 		satellites.add(new RebelSatellite(1, "Kenobi", new SecretPoint(-500D, -200D)));
 		satellites.add(new RebelSatellite(2, "Skywalker", new SecretPoint(100D, -100D)));

@@ -6,25 +6,179 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.commscenter.topsecret.message.MessageNotResolvedException;
 import com.commscenter.topsecret.message.SimpleMessageResolver;
 
 class SimpleMessageResolverTest {
 
+	private SimpleMessageResolver simpleMessageResolver;
+
+	@BeforeEach
+	public void init() {
+		simpleMessageResolver = new SimpleMessageResolver();
+	}
+
+	@ParameterizedTest
+	@MethodSource("singleListTestData")
+	void testSingleListParameterized(List<String> list, String expectedMessage) {
+		List<List<String>> aux = new ArrayList<>();
+		aux.add(list);
+		String message = simpleMessageResolver.getMessage(aux);
+		assertEquals(expectedMessage, message);
+	}
+
+	static Stream<Arguments> singleListTestData() {
+		return Stream.of(Arguments.of(Arrays.asList("solicito", "", "ayuda"), "solicito ayuda"),
+				Arguments.of(Arrays.asList("solicito", ""), "solicito"),
+				Arguments.of(Arrays.asList("", "ayuda"), "ayuda"));
+	}
+
+	@ParameterizedTest
+	@MethodSource("twoListTestData")
+	void testListTwoItemsParameterized(List<String> listA, List<String> listB, String expectedMessage) {
+		List<List<String>> aux = Lists.newArrayList(listA, listB);
+		String message = simpleMessageResolver.getMessage(aux);
+		assertEquals(expectedMessage, message);
+	}
+
+	static Stream<Arguments> twoListTestData() {
+		Arguments twoListCompatibleData = Arguments.of(Arrays.asList("este", "", "", "mensaje", ""),
+				Arrays.asList("", "es", "un", "", ""), "este es un mensaje");
+		Arguments twoListCompatibleWithNull = Arguments.of(Arrays.asList("solicito", null, ""),
+				Arrays.asList("", null, "ayuda"), "solicito ayuda");
+		return Stream.of(twoListCompatibleData, twoListCompatibleWithNull);
+	}
+
+	@ParameterizedTest
+	@MethodSource("threeListTestData")
+	void testListThreeItemsParameterized(List<String> listA, List<String> listB, List<String> listC,
+			String expectedMessage) {
+		List<List<String>> aux = Lists.newArrayList(listA, listB, listC);
+		String message = simpleMessageResolver.getMessage(aux);
+		assertEquals(expectedMessage, message);
+	}
+
+	static Stream<Arguments> threeListTestData() {
+		Arguments compatibleListsData = Arguments.of(Arrays.asList("este", "", "", "mensaje", ""),
+				Arrays.asList("", "es", "", "", "secreto"), Arrays.asList("este", "", "un", "", ""),
+				"este es un mensaje secreto");
+
+		Arguments compatibleListWithSecondListExtraOffsetData = Arguments.of(
+				Arrays.asList("", "es", "", "mensaje"), Arrays.asList("", "este", "", "un", "mensaje"),
+				Arrays.asList("este", "", "un", "mensaje"), "este es un mensaje");
+
+		Arguments compatibleListWithFirstAndSecondExtraOffsetdata = Arguments.of(
+				Arrays.asList("", "ayuda", "", ""), Arrays.asList("", "", "", "", "", "favor"),
+				Arrays.asList("", "por", ""), "ayuda por favor");
+
+		return Stream.of(compatibleListsData, compatibleListWithSecondListExtraOffsetData,
+				compatibleListWithFirstAndSecondExtraOffsetdata);
+	}
+	
+	@ParameterizedTest
+	@MethodSource("fourListTestData")
+	void testListFourItemsParameterized(List<String> listA, List<String> listB, List<String> listC, List<String> listD,
+			String expectedMessage) {
+		List<List<String>> aux = Lists.newArrayList(listA, listB, listC, listD);
+		String message = simpleMessageResolver.getMessage(aux);
+		assertEquals(expectedMessage, message);
+	}
+	
+	static Stream<Arguments> fourListTestData() {
+		Arguments compatibleListWithOneBlank = Arguments.of(Arrays.asList("este", "", "", ""),
+				Arrays.asList("este", "es", "", ""), Arrays.asList("este", "", "un", "mensaje"),
+				Arrays.asList("", "", "", ""),
+				"este es un mensaje");
+		
+		Arguments compatibleList = Arguments.of(Arrays.asList("este", "", "", ""),
+				Arrays.asList("este", "es", "", ""), Arrays.asList("", "", "un", ""),
+				Arrays.asList("este", "", "", "mensaje"),
+				"este es un mensaje");
+
+		return Stream.of(compatibleListWithOneBlank, compatibleList);
+	}
+
+	@Test
+	void testMerge2IncompatibleLists() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("este", "", "", "mensaje", ""),
+				Arrays.asList("es", "un", "mensaje", "", ""));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+	@Test
+	void testMerge3IncompatibleLists() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("", "x", "", "este", "es", "un", "mensaje"),
+				Arrays.asList("este", "", "un", "mensaje"), Arrays.asList("", "", "es", "", "mensaje"));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+	@Test
+	void testMerge3ListIncompatibleSecondWord() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("", "ayuda", "", ""),
+				Arrays.asList("", "", "", "", "", "favor", ""), Arrays.asList("", "por", ""));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+	@Test
+	void testMerge3ListIncompatibleFirstWord() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("ayuda", "", ""), Arrays.asList("favor", ""),
+				Arrays.asList("por", ""));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+	@Test
+	void testMerge3IncompatibleListWithNullEqualsNoElementInPlace() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("ayuda", null, ""), Arrays.asList("", "por", ""),
+				Arrays.asList("ayuda", "favor"));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+
+
+	@Test
+	void testIncorrectListSizes() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("este", "es"), Arrays.asList("", "este", "", "uno"));
+		assertThrows(MessageNotResolvedException.class, () -> {
+			simpleMessageResolver.getMessage(aux);
+		});
+	}
+
+	@Test
+	void test3MessagesWithOffset() {
+		List<List<String>> aux = Lists.newArrayList(Arrays.asList("", "", "este", "", "", ""),
+				Arrays.asList("", "", "", "", "un", ""), Arrays.asList("", "", "es", "", "mensaje"));
+		String message = simpleMessageResolver.getMessage(aux);
+		assertEquals("este es un mensaje", message);
+	}
+
 	@Test
 	void testNullList() {
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {			
+		assertThrows(MessageNotResolvedException.class, () -> {
 			simpleMessageResolver.getMessage(null);
 		});
 	}
 
 	@Test
 	void testNoElementsList() {
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
 		List<List<String>> aux = new ArrayList<>();
 		assertThrows(MessageNotResolvedException.class, () -> {
 			simpleMessageResolver.getMessage(aux);
@@ -35,170 +189,7 @@ class SimpleMessageResolverTest {
 	void testSingleList() {
 		List<List<String>> aux = new ArrayList<>();
 		aux.add(new ArrayList<>(Arrays.asList("solicito", "ayuda")));
-		String message = new SimpleMessageResolver().getMessage(aux);
+		String message = simpleMessageResolver.getMessage(aux);
 		assertEquals("solicito ayuda", message);
 	}
-
-	@Test
-	void testSingleListWithEmptyWord() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("solicito", "", "ayuda")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("solicito  ayuda", message);
-	}
-
-	@Test
-	void testSingleListWithTwoSpaces() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("solicito", "  ", "ayuda")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("solicito    ayuda", message);
-	}
-
-	@Test
-	void testSingleListWithExtraBlank() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("", "ayuda")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals(" ayuda", message);
-	}
-
-	@Test
-	void testMerge2CompatibleLists() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "es", "un", "", "")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje ", message);
-	}
-
-	@Test
-	void testMerge2IncompatibleLists() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje", "")));
-		aux.add(new ArrayList<>(Arrays.asList("es", "un", "mensaje", "", "")));
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {
-			simpleMessageResolver.getMessage(aux);
-		});
-	}
-
-	@Test
-	void testMerge2CompatibleListWithNullAsEmpty() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("solicito", null, "")));
-		aux.add(new ArrayList<>(Arrays.asList("", null, "ayuda")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("solicito  ayuda", message);
-	}
-
-	@Test
-	void testMerge3CompatibleLists() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "es", "", "", "secreto")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "", "")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje secreto", message);
-	}
-
-	@Test
-	void testMerge3CompatibleListWithFirstListExtraBlank() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("", "este", "es", "un", "mensaje")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "mensaje")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "es", "", "mensaje")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje", message);
-	}
-
-	@Test
-	void testMerge3CompatibleListWithSecondListExtraBlank() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("", "es", "", "mensaje")));
-		aux.add(new ArrayList<>(Arrays.asList("", "este", "", "un", "mensaje")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "mensaje")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje", message);
-	}
-
-	@Test
-	void testMerge3CompatibleListWithFirstAndSecondExtraBlank() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("", "ayuda", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "", "", "", "favor")));
-		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("ayuda por favor", message);
-	}
-
-	@Test
-	void testMerge3ListIncompatibleSecondWord() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("", "ayuda", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "", "", "", "favor", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {
-			simpleMessageResolver.getMessage(aux);
-		});
-	}
-
-	@Test
-	void testMerge3ListIncompatibleFirstWord() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("ayuda", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("favor", "")));
-		aux.add(new ArrayList<>(Arrays.asList("por", "")));
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {
-			simpleMessageResolver.getMessage(aux);
-		});
-	}
-
-	@Test
-	void testMerge3IncompatibleListWithNullEqualsNoElementInPlace() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("ayuda", null, "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "por", "")));
-		aux.add(new ArrayList<>(Arrays.asList("ayuda", "favor")));
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {
-			simpleMessageResolver.getMessage(aux);
-		});
-	}
-
-	@Test
-	void testMerge4CompatibleList() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "es", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "un", "")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "mensaje")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje", message);
-	}
-
-	@Test
-	void testMerge4CompatibleListWithOneBlank() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "es", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("", "", "", "")));
-		aux.add(new ArrayList<>(Arrays.asList("este", "", "un", "mensaje")));
-		String message = new SimpleMessageResolver().getMessage(aux);
-		assertEquals("este es un mensaje", message);
-	}
-
-	@Test
-	void testIncorrectListSizes() {
-		List<List<String>> aux = new ArrayList<>();
-		aux.add(new ArrayList<>(Arrays.asList("este", "es")));
-		aux.add(new ArrayList<>(Arrays.asList("", "este", "", "uno")));
-		SimpleMessageResolver simpleMessageResolver = new SimpleMessageResolver();
-		assertThrows(MessageNotResolvedException.class, () -> {
-			simpleMessageResolver.getMessage(aux);
-		});
-	}
-
 }

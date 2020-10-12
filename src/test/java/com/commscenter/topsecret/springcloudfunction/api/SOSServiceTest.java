@@ -1,4 +1,4 @@
-package com.commscenter.topsecret.api;
+package com.commscenter.topsecret.springcloudfunction.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.commscenter.topsecret.location.LocationResolver;
-import com.commscenter.topsecret.location.SecretPoint;
+import com.commscenter.topsecret.location.coordinate.SecretPoint;
+import com.commscenter.topsecret.location.resolver.LocationResolver;
 import com.commscenter.topsecret.service.SOSService;
 
 @SpringBootTest
