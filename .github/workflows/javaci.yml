@@ -13,3 +13,19 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn -B package --file pom.xml  
+      - name: deploy topsecret API into AWS Lambda
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.aws_access_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+          aws_region: us-east-2
+          function_name: topsecret
+          zip_file: /home/runner/work/commscenter_sos-service/commscenter_sos-service/target/ddg-commscenter_sos-service-2.0.0.RELEASE-aws.jar
+      - name: deploy topsecret_split API into AWS Lambda
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.aws_access_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+          aws_region: us-east-2
+          function_name: topsecret_split
+          zip_file: /home/runner/work/commscenter_sos-service/commscenter_sos-service/target/ddg-commscenter_sos-service-2.0.0.RELEASE-aws.jar
