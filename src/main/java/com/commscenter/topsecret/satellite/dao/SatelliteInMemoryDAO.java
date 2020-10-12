@@ -1,4 +1,4 @@
-package com.commscenter.topsecret.service;
+package com.commscenter.topsecret.satellite.dao;
 
 import java.util.ArrayList;
 import java.util.List;

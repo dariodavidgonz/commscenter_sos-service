@@ -15,6 +15,7 @@ import com.commscenter.topsecret.location.resolver.LocationResolver;
 import com.commscenter.topsecret.message.MessageResolver;
 import com.commscenter.topsecret.satellite.Satellite;
 import com.commscenter.topsecret.satellite.SatelliteSOS;
+import com.commscenter.topsecret.satellite.dao.SatelliteDAO;
 import com.commscenter.topsecret.satellite.dao.SatelliteSOSMessageDAO;
 
 /**

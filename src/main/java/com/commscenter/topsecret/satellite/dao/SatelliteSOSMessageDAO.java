@@ -4,7 +4,7 @@ import com.commscenter.topsecret.satellite.SatelliteSOS;
 
 /**
  * 
- * Data access object for Satellites Messages
+ * Data access object for Satellites Messages Parts
  * 
  * @author Dario Gonzalez
  */
