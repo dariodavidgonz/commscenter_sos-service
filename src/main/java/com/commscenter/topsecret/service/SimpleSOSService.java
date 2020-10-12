@@ -118,6 +118,9 @@ public class SimpleSOSService implements SOSService {
 	private void validateSatellites(SecretMessage info, List<Satellite> satellites) {
 		List<String> satelliteNames =  satellites.stream().map(Satellite::getName)
 				.collect(Collectors.toList());
+		if (info.getSatellites() == null) {
+			throw new BadRequestException("Invalid Input");
+		}
 		List<SatelliteSOS> invalidSatellites = info.getSatellites()
 				  .stream()
 				  .filter(satSOS -> satSOS.getName() == null || !satelliteNames.contains(satSOS.getName().toLowerCase()))
