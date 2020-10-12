@@ -40,4 +40,37 @@ public class StationRelativeLocation {
 		this.distance = distance;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((coordinate == null) ? 0 : coordinate.hashCode());
+		result = prime * result + ((distance == null) ? 0 : distance.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		StationRelativeLocation other = (StationRelativeLocation) obj;
+		if (coordinate == null) {
+			if (other.coordinate != null)
+				return false;
+		} else if (!coordinate.equals(other.coordinate))
+			return false;
+		if (distance == null) {
+			if (other.distance != null)
+				return false;
+		} else if (!distance.equals(other.distance))
+			return false;
+		return true;
+	}
+	
+	
+
 }

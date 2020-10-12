@@ -12,7 +12,7 @@ import com.commscenter.topsecret.satellite.Satellite;
 
 /**
  * 
- * In memory implementation of the Satellite DAO
+ * In memory implementation of the Satellite DAO.
  * 
  * @author Dario Gonzalez
  */
@@ -29,6 +29,14 @@ public class SatelliteInMemoryDAO implements SatelliteDAO {
 		satellites.add(new RebelSatellite(3, "sato", new SecretPoint(500D, 100D)));
 	}
 
+	
+	/**
+	 * Retrieves all available Satellites ordered following the Satellite Unified Order
+	 * 
+	 * @see <a href=
+	 *      "https://github.com/dariodavidgonz/commscenter_sos-service/wiki/Satellite-Unified-Order">Satellite-Unified-Order</a>
+	 *
+	 */
 	public List<Satellite> findAll() {
 
 		return satellites;

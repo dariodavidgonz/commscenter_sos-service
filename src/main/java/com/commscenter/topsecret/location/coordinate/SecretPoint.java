@@ -48,4 +48,37 @@ public class SecretPoint {
 		return Math.sqrt((targetPoint.getY() - this.getY()) * (targetPoint.getY() - this.getY()) + (targetPoint.getX() - this.getX()) * (targetPoint.getX() - this.getX()));
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((x == null) ? 0 : x.hashCode());
+		result = prime * result + ((y == null) ? 0 : y.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SecretPoint other = (SecretPoint) obj;
+		if (x == null) {
+			if (other.x != null)
+				return false;
+		} else if (!x.equals(other.x))
+			return false;
+		if (y == null) {
+			if (other.y != null)
+				return false;
+		} else if (!y.equals(other.y))
+			return false;
+		return true;
+	}
+	
+	
+
 }

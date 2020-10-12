@@ -124,7 +124,7 @@ public class SimpleSOSService implements SOSService {
 		List<SatelliteSOS> invalidSatellites = info.getSatellites()
 				  .stream()
 				  .filter(satSOS -> satSOS.getName() == null || !satelliteNames.contains(satSOS.getName().toLowerCase()))
-				  .collect(Collectors.toList());;
+				  .collect(Collectors.toList());
 		if (!invalidSatellites.isEmpty()) {
 			String message = invalidSatellites.stream()
 		            .map( SatelliteSOS::getName )
