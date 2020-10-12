@@ -1,6 +1,7 @@
 package com.commscenter.topsecret.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.commscenter.topsecret.satellite.Satellite;
 
@@ -13,5 +14,6 @@ import com.commscenter.topsecret.satellite.Satellite;
 public interface SatelliteDAO {
 
 	public List<Satellite> findAll();
+	public Optional<Satellite> findOne(String name);
 
 }

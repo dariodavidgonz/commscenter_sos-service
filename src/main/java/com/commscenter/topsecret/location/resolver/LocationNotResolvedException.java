@@ -8,7 +8,7 @@ public class LocationNotResolvedException extends RuntimeException {
 
 	private static final long serialVersionUID = 2506116128695013679L;
 
-	public LocationNotResolvedException() {
-		super();
+	public LocationNotResolvedException(String message) {
+		super("(Not Found) Location could not be resolved: " + message);
 	}
 }

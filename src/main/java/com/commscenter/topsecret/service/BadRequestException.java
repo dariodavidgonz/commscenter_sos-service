@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 public class BadRequestException extends RuntimeException {
 
 	public BadRequestException(String message) {
-		super(message);
+		super("(Bad Request) " + message);
 	}
 
 	private static final long serialVersionUID = -8245328290520560366L;

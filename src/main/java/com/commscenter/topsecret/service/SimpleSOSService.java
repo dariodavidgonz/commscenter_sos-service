@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import com.commscenter.topsecret.location.resolver.LocationResolver;
 import com.commscenter.topsecret.message.MessageResolver;
 import com.commscenter.topsecret.satellite.Satellite;
 import com.commscenter.topsecret.satellite.SatelliteSOS;
+import com.commscenter.topsecret.satellite.dao.SatelliteSOSMessageDAO;
 
 /**
  * 
@@ -28,7 +31,11 @@ public class SimpleSOSService implements SOSService {
 	@Autowired
 	private MessageResolver messageResolver;
 	@Autowired
-	private SatelliteDAO satelliteDAO;
+	private SatelliteDAO satelliteDAO;	
+	@Autowired
+	private SatelliteSOSMessageDAO satelliteSOSMessageDAO;
+	
+	static Logger logger = LoggerFactory.getLogger(SimpleSOSService.class);
 
 	/**
 	 ** 
@@ -67,6 +74,28 @@ public class SimpleSOSService implements SOSService {
 		response.setMessage(messageResolver.getMessage(getMessages(info)));	
 		return response;
 	}
+	
+	@Override
+	public SOSResponse receiveSplitSOSMessagePart(SatelliteSOS msg)  {
+		validateSatellite(msg.getName());
+		satelliteSOSMessageDAO.saveOrUpdate(msg);
+		return new SOSResponse();
+	}
+
+	private void validateSatellite(String name) {
+		if (!satelliteDAO.findOne(name).isPresent()) {
+			throw new BadRequestException("Invalid Satellite: " + name);
+		}
+	}
+
+	@Override
+	public SOSResponse resolveSplitSatelliteSOS() {
+		List<Satellite> satellites = satelliteDAO.findAll();
+		List<SatelliteSOS> satelliteSOSList = satellites.stream()
+                .map(satellite -> satelliteSOSMessageDAO.findOne(satellite.getName()))
+                .collect(Collectors.toList());
+		return resolveSOS(new SecretMessage(satelliteSOSList));
+	}
 
 	private List<List<String>> getMessages(SecretMessage info) {
 		return info.getSatellites().stream().map(SatelliteSOS::getMessage)
@@ -88,16 +117,15 @@ public class SimpleSOSService implements SOSService {
 	private void validateSatellites(SecretMessage info, List<Satellite> satellites) {
 		List<String> satelliteNames =  satellites.stream().map(Satellite::getName)
 				.collect(Collectors.toList());
-		info.getSatellites().stream().allMatch(satSOS -> satelliteNames.contains(satSOS.getName()));
 		List<SatelliteSOS> invalidSatellites = info.getSatellites()
 				  .stream()
-				  .filter(satSOS -> satelliteNames.contains(satSOS.getName()))
+				  .filter(satSOS -> satSOS.getName() == null || !satelliteNames.contains(satSOS.getName().toLowerCase()))
 				  .collect(Collectors.toList());;
-		if (invalidSatellites.size() > 0) {
+		if (!invalidSatellites.isEmpty()) {
 			String message = invalidSatellites.stream()
 		            .map( SatelliteSOS::getName )
 		            .collect( Collectors.joining("," ) );
-			throw new BadRequestException("Invalid Satellites " + message);
+			throw new BadRequestException("Invalid Satellites: " + message);
 		}
 		
 	}

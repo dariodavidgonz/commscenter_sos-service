@@ -8,7 +8,7 @@ public class MessageNotResolvedException extends RuntimeException {
 
 	private static final long serialVersionUID = 3506116128695013679L;
 
-	public MessageNotResolvedException() {
-		super();
+	public MessageNotResolvedException(String message) {
+		super("(Not Found) Message Could not be resolved: " + message);
 	}
 }

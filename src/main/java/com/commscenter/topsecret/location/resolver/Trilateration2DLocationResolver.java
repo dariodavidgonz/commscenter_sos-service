@@ -112,7 +112,7 @@ public class Trilateration2DLocationResolver implements LocationResolver {
 		if (!(isPrecisionToPointAcceptable(distance1, resultPoint, point1)
 				&& isPrecisionToPointAcceptable(distance2, resultPoint, point2)
 				&& isPrecisionToPointAcceptable(distance3, resultPoint, point3))) {
-			throw new LocationNotResolvedException();
+			throw new LocationNotResolvedException("Please verify input data.");
 		}
 	}
 
@@ -151,8 +151,8 @@ public class Trilateration2DLocationResolver implements LocationResolver {
 	 * 
 	 */
 	private void validateStationLocationSize(List<StationRelativeLocation> stationLocations) {
-		if (stationLocations.size() != 3) {
-			throw new LocationNotResolvedException();
+		if (stationLocations.size() != 3 || stationLocations.stream().anyMatch(s -> s.getDistance() == null)) {
+			throw new LocationNotResolvedException("3 satellite distances should be provided.");
 		}
 	}
 

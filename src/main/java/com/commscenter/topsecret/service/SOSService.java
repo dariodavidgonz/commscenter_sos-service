@@ -3,6 +3,7 @@ package com.commscenter.topsecret.service;
 import java.util.List;
 
 import com.commscenter.topsecret.location.coordinate.SecretPoint;
+import com.commscenter.topsecret.satellite.SatelliteSOS;
 
 /**
  * 
@@ -49,5 +50,23 @@ public interface SOSService {
 	 * 
 	 */
 	SOSResponse resolveSOS(SecretMessage info);
+	
+	
+	/**
+	 * Stores satellite SOS information
+	 *
+	 * @param msg information to be stored
+	 * @return SOSResponse
+	 * 
+	 */
+	SOSResponse receiveSplitSOSMessagePart(SatelliteSOS msg);
+	
+	/**
+	 * Retrieves unified satellite SOS information that was received separately
+	 *
+	 * @return SOSResponse unified from information available on the system
+	 * 
+	 */
+	SOSResponse resolveSplitSatelliteSOS(); 
 
 }

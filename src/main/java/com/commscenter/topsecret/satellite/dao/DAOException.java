@@ -9,7 +9,7 @@ public class DAOException  extends RuntimeException {
 	private static final long serialVersionUID = 2753861183678076048L;
 
 	public DAOException(String message) {
-		super(message);
+		super("(Data Error) " + message);
 	}
 
 }

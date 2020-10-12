@@ -39,7 +39,7 @@ public class SimpleMessageResolver implements MessageResolver {
 	 * Removes extra empty elements from a list to make it match a required size.
 	 *
 	 * @param requiredSize exact size that the list is required to have
-	 * @param list         
+	 * @param list
 	 * 
 	 * @return new list without extra empty elements
 	 * 
@@ -48,7 +48,8 @@ public class SimpleMessageResolver implements MessageResolver {
 		boolean elementsToDeleteAllEmpty = list.stream().limit((long) list.size() - requiredSize)
 				.allMatch(element -> element.isEmpty());
 		if (!elementsToDeleteAllEmpty) {
-			throw new MessageNotResolvedException();
+			throw new MessageNotResolvedException(
+					"Message size (ignoring offsets) should be the same for all satellites.");
 		}
 		return list.stream().skip((long) list.size() - requiredSize).collect(Collectors.toList());
 
@@ -96,7 +97,7 @@ public class SimpleMessageResolver implements MessageResolver {
 			if (isEmptyAtIndex(targetWordList, wordIndex)) {
 				targetWordList.set(wordIndex, sourceWordList.get(wordIndex));
 			} else if (!isEmptyAtIndex(sourceWordList, wordIndex)) {
-				throw new MessageNotResolvedException();
+				throw new MessageNotResolvedException("Incompatible messages.");
 			}
 		}
 	}
@@ -111,8 +112,8 @@ public class SimpleMessageResolver implements MessageResolver {
 	 * 
 	 */
 	private void validate(List<List<String>> wordLists) {
-		if (wordLists == null || !wordLists.stream().allMatch(list -> !list.isEmpty())) {
-			throw new MessageNotResolvedException();
+		if (wordLists == null || wordLists.stream().anyMatch(list -> (list == null) || list.isEmpty())) {
+			throw new MessageNotResolvedException("All messages should have information.");
 		}
 	}
 
@@ -135,13 +136,14 @@ public class SimpleMessageResolver implements MessageResolver {
 	private void validateListsSize(List<List<String>> wordLists, int expectedSize) {
 		for (List<String> list : wordLists) {
 			if (list.size() != expectedSize)
-				throw new MessageNotResolvedException();
+				throw new MessageNotResolvedException(
+						"Message size (ignoring offsets) should be the same for all satellites.\"");
 		}
 	}
 
 	private int getMinMessageSize(List<List<String>> wordLists) {
 		List<String> minList = wordLists.stream().min(Comparator.comparing(List<String>::size))
-				.orElseThrow(MessageNotResolvedException::new);
+				.orElseThrow(() -> new MessageNotResolvedException("Message could not be resolved"));
 		return minList.size();
 	}
 
