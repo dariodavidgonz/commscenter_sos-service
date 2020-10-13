@@ -78,14 +78,17 @@ public class SimpleSOSService implements SOSService {
 	
 	@Override
 	public SOSResponse receiveSplitSOSMessagePart(SatelliteSOS msg)  {
-		validateSatellite(msg.getName());
+		validateSatelliteSOS(msg);
 		satelliteSOSMessageDAO.saveOrUpdate(msg);
 		return new SOSResponse();
 	}
 
-	private void validateSatellite(String name) {
-		if (!satelliteDAO.findOne(name).isPresent()) {
+	private void validateSatelliteSOS(SatelliteSOS name) {
+		if (!satelliteDAO.findOne(name.getName()).isPresent()) {
 			throw new BadRequestException("Invalid Satellite: " + name);
+		}
+		if (name.getDistance() == null || name.getMessage() == null) {
+			throw new BadRequestException("Invalid input data for Satellite " + name);
 		}
 	}
 
